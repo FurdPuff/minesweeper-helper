@@ -9,6 +9,19 @@ lerna-debug.log*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Frontend build output
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Vite
+.vite/
+
+# Cache
+.cache/
+
 # Runtime data
 pids
 *.pid
