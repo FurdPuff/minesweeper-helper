@@ -1,4 +1,4 @@
-import type { Cell } from './cell.ts'
+import type { Cell } from './types.ts'
 
 export class Grid {
     width: number
@@ -21,5 +21,13 @@ export class Grid {
             grid.push(row)
         }
         return grid
+    }
+
+    setAll<K extends keyof Cell>(property: K, value: Cell[K]) {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.cells[y][x][property] = value
+            }
+        }
     }
 }

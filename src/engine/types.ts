@@ -4,3 +4,5 @@ export type Cell = {
     isFlagged: boolean
     adjacentMines: number
 }
+
+export type Coordinate = [number, number]
