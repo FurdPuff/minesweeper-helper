@@ -1,4 +1,3 @@
-import type { Cell } from './types.ts'
 import { Grid } from './grid.ts'
 
 export class Game {
@@ -46,7 +45,7 @@ export class Game {
     chordCell(x: number, y: number) {
         // chord a cell if conditions are met
         const cell = this.grid.cells[y][x]
-        if (!cell.isRevealed) return
+        if (!cell.isRevealed || cell.isFlagged) return
         
         var adjacentFlags = 0
         for (let dy = -1; dy <= 1; dy++) {
@@ -55,7 +54,7 @@ export class Game {
                 const ny = y + dy
                 const nx = x + dx
 
-                if (ny >= 0 && ny > this.grid.height && nx >= 0 && nx < this.grid.width) {
+                if (ny >= 0 && ny < this.grid.height && nx >= 0 && nx < this.grid.width) {
                     const neighborCell = this.grid.cells[ny][nx]
                     if (neighborCell.isFlagged) adjacentFlags++
                 }
@@ -69,7 +68,7 @@ export class Game {
                 const ny = y + dy
                 const nx = x + dx
 
-                if (ny >= 0 && ny > this.grid.height && nx >= 0 && nx < this.grid.width) {
+                if (ny >= 0 && ny < this.grid.height && nx >= 0 && nx < this.grid.width) {
                     const neighborCell = this.grid.cells[ny][nx]
                     if (neighborCell.isFlagged || neighborCell.isRevealed) continue
                     this.revealCell(nx,ny)

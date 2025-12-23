@@ -1,28 +1,6 @@
 import { Game } from './game.ts'
 import type { Coordinate } from './types.ts'
 
-function calculateAdjacentMines(game: Game) {
-    // calculate adjacent mines for each cell on the grid
-    for (let y = 0; y < game.grid.height; y++) {
-        for (let x = 0; x < game.grid.width; x++) {
-            const cell = game.grid.cells[y][x]
-            if (!cell.hasMine) continue
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    if (dy === 0 && dx === 0) continue
-                    const ny = y + dy
-                    const nx = x + dx
-
-                    if (ny >= 0 && ny < game.grid.height && nx >= 0 && nx < game.grid.width) {
-                        const neighborCell = game.grid.cells[ny][nx]
-                        neighborCell.adjacentMines++
-                    }
-                }
-            }
-        }
-    }
-}
-
 export class RandomGame {
     mineCount: number
     game: Game
@@ -73,6 +51,28 @@ export class ManualGame {
             
             if (!selectedCell.hasMine && y < this.game.grid.height && x < this.game.grid.width && x >= 0 && y >= 0) {
                 selectedCell.hasMine = true
+            }
+        }
+    }
+}
+
+function calculateAdjacentMines(game: Game) {
+    // calculate adjacent mines for each cell on the grid
+    for (let y = 0; y < game.grid.height; y++) {
+        for (let x = 0; x < game.grid.width; x++) {
+            const cell = game.grid.cells[y][x]
+            if (!cell.hasMine) continue
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dy === 0 && dx === 0) continue
+                    const ny = y + dy
+                    const nx = x + dx
+
+                    if (ny >= 0 && ny < game.grid.height && nx >= 0 && nx < game.grid.width) {
+                        const neighborCell = game.grid.cells[ny][nx]
+                        neighborCell.adjacentMines++
+                    }
+                }
             }
         }
     }
