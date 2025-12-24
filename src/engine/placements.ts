@@ -1,5 +1,5 @@
-import { Game } from './game.ts'
-import type { Coordinate } from './types.ts'
+import { Game } from './game'
+import type { Coordinate } from './types'
 
 export class RandomGame {
     mineCount: number
@@ -21,7 +21,7 @@ export class RandomGame {
         while (minesLeft > 0) {
             const random_y = Math.floor(Math.random() * this.game.grid.height)
             const random_x = Math.floor(Math.random() * this.game.grid.width)
-            const randomCell = this.game.grid.cells[random_y][random_x]
+            const randomCell = this.game.grid.getCell(random_x,random_y)
 
             if (!randomCell.hasMine) {
                 randomCell.hasMine = true
@@ -45,9 +45,9 @@ export class ManualGame {
     private manualPlaceMines() {
         for (let i = 0; i < this.mineList.length; i++) {
             const coordinate = this.mineList[i]
-            const x = coordinate[0]
-            const y = coordinate[1]
-            const selectedCell = this.game.grid.cells[y][x]
+            const x = coordinate![0]
+            const y = coordinate![1]
+            const selectedCell = this.game.grid.getCell(x,y)
             
             if (!selectedCell.hasMine && y < this.game.grid.height && x < this.game.grid.width && x >= 0 && y >= 0) {
                 selectedCell.hasMine = true
@@ -60,7 +60,7 @@ function calculateAdjacentMines(game: Game) {
     // calculate adjacent mines for each cell on the grid
     for (let y = 0; y < game.grid.height; y++) {
         for (let x = 0; x < game.grid.width; x++) {
-            const cell = game.grid.cells[y][x]
+            const cell = game.grid.getCell(x,y)
             if (!cell.hasMine) continue
             for (let dy = -1; dy <= 1; dy++) {
                 for (let dx = -1; dx <= 1; dx++) {
@@ -69,7 +69,7 @@ function calculateAdjacentMines(game: Game) {
                     const nx = x + dx
 
                     if (ny >= 0 && ny < game.grid.height && nx >= 0 && nx < game.grid.width) {
-                        const neighborCell = game.grid.cells[ny][nx]
+                        const neighborCell = game.grid.getCell(nx,ny)
                         neighborCell.adjacentMines++
                     }
                 }

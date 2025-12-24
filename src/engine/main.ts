@@ -1,6 +1,6 @@
-import { Game } from './game.ts'
-import { RandomGame } from './placements.ts'
-import { ManualGame } from './placements.ts'
+import { Game } from './game'
+import { RandomGame } from './placements'
+import { ManualGame } from './placements'
 
 //Creating randomly generated game
 const randomGame = new RandomGame(4, 5, 8)

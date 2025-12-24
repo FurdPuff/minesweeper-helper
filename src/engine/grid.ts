@@ -1,4 +1,4 @@
-import type { Cell } from './types.ts'
+import type { Cell } from './types'
 
 export class Grid {
     width: number
@@ -23,10 +23,16 @@ export class Grid {
         return grid
     }
 
+    getCell(x: number, y: number): Cell {
+        if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+            throw new Error('Coordinates out of bounds')
+        return this.cells[y]![x]!
+    }
+
     setAll<K extends keyof Cell>(property: K, value: Cell[K]) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                this.cells[y][x][property] = value
+                this.getCell(x,y)[property] = value
             }
         }
     }
