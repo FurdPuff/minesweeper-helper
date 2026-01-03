@@ -6,3 +6,5 @@ export type Cell = {
 }
 
 export type Coordinate = [number, number]
+
+export type Difficulty = "Beginner" | "Intermediate" | "Expert"

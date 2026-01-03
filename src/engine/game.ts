@@ -1,4 +1,4 @@
-import { Grid } from './grid'
+import { Grid } from './grid.js'
 
 export class Game {
     grid: Grid
@@ -44,7 +44,7 @@ export class Game {
                 const nx = x + dx
 
                 if (ny >= 0 && ny < this.grid.height && nx >= 0 && nx < this.grid.width) {
-                    const neighborCell = this.grid.getCell(x,y)
+                    const neighborCell = this.grid.getCell(nx,ny)
                     if (neighborCell.isFlagged) adjacentFlags++
                 }
             }
@@ -60,9 +60,10 @@ export class Game {
                 if (dy === 0 && dx === 0) continue
                 const ny = y + dy
                 const nx = x + dx
+                if (ny < 0 || ny >= this.grid.height || nx < 0 || nx >= this.grid.width) continue
                 const neighborCell = this.grid.getCell(nx,ny)
-                const skipFlagged = options!.skipFlagged ?? false
-                const skipRevealed = options!.skipRevealed ?? false
+                const skipFlagged = options?.skipFlagged ?? false
+                const skipRevealed = options?.skipRevealed ?? false
 
                 if (skipFlagged && neighborCell.isFlagged) continue
                 if (skipRevealed && neighborCell.isRevealed) continue

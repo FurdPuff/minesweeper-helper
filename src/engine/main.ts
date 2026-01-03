@@ -1,45 +1,56 @@
-import { Game } from './game'
-import { RandomGame } from './placements'
-import { ManualGame } from './placements'
+import { GameDifficulty } from './difficulties.js'
+import { Game } from './game.js'
+import { RandomGame } from './placements.js'
+import { ManualGame } from './placements.js'
+import { Coordinate, Difficulty } from './types.js'
 
-//Creating randomly generated game
-const randomGame = new RandomGame(4, 5, 8)
+document.addEventListener("DOMContentLoaded", () => {
+    const startBtn = document.getElementById("startBtn")
 
-//initial
-console.log("Initial random game grid: ")
-console.log(randomGame.game.grid.cells)
+    startBtn?.addEventListener("click", () => {
+        startGame({type: "Random", mineCount: 9, width: 7, height: 7})
+    })
+})
 
-//after flagging (0,0)
-randomGame.game.toggleFlag(0,0)
-console.log("Flagging (0,0):")
-console.log(randomGame.game.grid.cells)
+function startGame (options:
+    {type: "Random"; mineCount: number; width: number; height: number} |
+    {type: "Manual"; mineList: Coordinate[]; width: number; height: number} |
+    {type: "Difficulty"; difficulty: Difficulty}) {
+    
+    let game: Game
+    switch (options.type) {
+        case "Random":
+            game = new Game(options.width, options.height)
+            new RandomGame(game, options.mineCount)
+            break
+        case "Manual":
+            game = new Game(options.width, options.height)
+            new ManualGame(game, options.mineList)
+            break
+        case "Difficulty":
+            game = new Game(7,7)
+            new GameDifficulty(options.difficulty)
+            break
+    }
+    const board = document.getElementById("board")!
+    board.innerHTML = ""
 
-//after revealling (2,3) and (0,4)
-randomGame.game.revealCell(2,3)
-randomGame.game.revealCell(0,4)
-console.log("Revealling (2,3) and (0,4)")
-console.log(randomGame.game.grid.cells)
+    function render() {
+        board.innerHTML = ""
+        for (let y = 0; y < game.grid.height; y++){
+            for (let x = 0; x < game.grid.width; x++) {
+                const cell = game.grid.getCell(x,y)
+                var div = document.createElement("div")
+                const mines = cell.adjacentMines
 
+                div.textContent = mines === 0 ? "" : String(mines)
+                if (mines !== 0) div.classList.add("x" + mines)
+                div.classList.add("isRevealed")
+                board.appendChild(div)
+            }
+        }
+    }
 
-//Creating manually generated game
-const manualGame = new ManualGame(7, 7, [[0,0],[4,0],[0,1],[3,2],[5,2],[5,3],[1,4],[4,4],[5,4],[0,5],[2,5],[0,6]])
-
-//initial
-console.log("Initial manual game grid: ")
-console.log(manualGame.game.grid.cells)
-
-//after revealling 6,6
-manualGame.game.revealCell(6,6)
-console.log("Revealling (6,6)")
-console.log(manualGame.game.grid.cells)
-
-//after flagging (4,4) and (2,5)
-manualGame.game.toggleFlag(4,4)
-manualGame.game.toggleFlag(2,5)
-console.log("Flagging (4,4) and (2,5)")
-console.log(manualGame.game.grid.cells)
-
-//after chording (3,5)
-manualGame.game.chordCell(3,5)
-console.log("Chording (3,5)")
-console.log(manualGame.game.grid.cells)
+    console.log('Start Game clicked — rendering board')
+    render()
+}

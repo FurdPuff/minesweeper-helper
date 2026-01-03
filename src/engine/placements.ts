@@ -1,12 +1,12 @@
-import { Game } from './game'
-import type { Coordinate } from './types'
+import { Game } from './game.js'
+import type { Coordinate } from './types.js'
 
 export class RandomGame {
     mineCount: number
     game: Game
     
-    constructor(width: number, height: number, mineCount: number) {
-        this.game = new Game(width, height)
+    constructor(game: Game, mineCount: number) {
+        this.game = game
         this.mineCount = mineCount
         this.randomPlaceMines()
         calculateAdjacentMines(this.game)
@@ -35,8 +35,8 @@ export class ManualGame {
     mineList: Coordinate[]
     game: Game
 
-    constructor(width: number, height: number, mineList: Coordinate[]) {
-        this.game = new Game(width, height)
+    constructor(game: Game, mineList: Coordinate[]) {
+        this.game = game
         this.mineList = mineList
         this.manualPlaceMines()
         calculateAdjacentMines(this.game)
@@ -56,8 +56,9 @@ export class ManualGame {
     }
 }
 
-function calculateAdjacentMines(game: Game) {
-    // calculate adjacent mines for each cell on the grid
+export function calculateAdjacentMines(game: Game) {
+    // reset counts then calculate adjacent mines for each cell on the grid
+    game.grid.setAll("adjacentMines", 0)
     for (let y = 0; y < game.grid.height; y++) {
         for (let x = 0; x < game.grid.width; x++) {
             const cell = game.grid.getCell(x,y)
