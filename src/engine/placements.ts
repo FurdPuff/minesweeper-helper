@@ -1,6 +1,7 @@
 import { Game } from './game.js'
-import type { Coordinate } from './types.js'
+import type { Coordinate, Difficulty } from './types.js'
 
+//Randomly places tiles on a grid given a Game and a mine count
 export class RandomGame {
     mineCount: number
     game: Game
@@ -31,6 +32,7 @@ export class RandomGame {
     }
 }
 
+//Manually places tiles on a grid given a Game and a list of mine coordinates
 export class ManualGame {
     mineList: Coordinate[]
     game: Game
@@ -56,8 +58,43 @@ export class ManualGame {
     }
 }
 
+//Randomly places tiles on a grid given a game difficulty
+export class GameDifficulty {
+    game: Game
+
+    constructor(difficulty: Difficulty) {
+        let width!: number
+        let height!: number
+        let mineCount!: number
+
+        switch (difficulty) {
+            case "Beginner":
+                width = 9
+                height = 9
+                mineCount = 10
+                break
+            case "Intermediate":
+                width = 16
+                height = 16
+                mineCount = 40
+                break
+            case "Expert":
+                width = 30
+                height = 16
+                mineCount = 99
+                break
+            default:
+                const _exhaustive: never = difficulty
+                throw new Error(`Unknown difficulty: ${_exhaustive}`)
+        }
+
+        this.game = new Game(width, height)
+        new RandomGame(this.game, mineCount)
+    }
+}
+
+// Calculates adjacent mines for each cell on the grid
 export function calculateAdjacentMines(game: Game) {
-    // reset counts then calculate adjacent mines for each cell on the grid
     game.grid.setAll("adjacentMines", 0)
     for (let y = 0; y < game.grid.height; y++) {
         for (let x = 0; x < game.grid.width; x++) {

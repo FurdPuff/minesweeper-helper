@@ -29,11 +29,15 @@ body {
 }
 
 .isRevealed {
-    background: white;
+    background: darkgray !important;
 }
 
-.flagged {
-    background: #ffdddd;
+.isRevealedMine {
+    background: white !important;
+    color: black;
+}
+
+.isFlagged {
     color: crimson;
 }
 

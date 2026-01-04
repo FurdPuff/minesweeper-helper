@@ -1,5 +1,6 @@
 import { Grid } from './grid.js'
 
+//Initialize grid and game logic
 export class Game {
     grid: Grid
     isGameOver: boolean = false
@@ -9,8 +10,8 @@ export class Game {
         this.grid = new Grid(width,height)
     }
 
+    //Reveal a cell
     revealCell(x: number, y: number) {
-        // reveal a cell, flood fill zeros
         const cell = this.grid.getCell(x,y)
         if (cell.isRevealed || cell.isFlagged) return
         cell.isRevealed = true
@@ -23,16 +24,16 @@ export class Game {
         this.revealNeighbors(x,y)
     }
 
+    //Toggle flag on a cell
     toggleFlag(x: number, y: number) {
-        // toggle flag on a cell
         const cell = this.grid.getCell(x,y)
         if (cell.isRevealed) return
 
         cell.isFlagged = !cell.isFlagged
     }
 
+    //Attempt to chord a cell
     chordCell(x: number, y: number) {
-        // chord a cell if conditions are met
         const cell = this.grid.getCell(x,y)
         if (!cell.isRevealed || cell.isFlagged) return
         
@@ -54,6 +55,7 @@ export class Game {
         this.revealNeighbors(x,y, {skipFlagged: true, skipRevealed: true})
     }
 
+    //Reveal adjacent "neighbor" cells
     revealNeighbors(x: number,y: number, options?: {skipFlagged?: boolean, skipRevealed?: boolean}) {
         for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
