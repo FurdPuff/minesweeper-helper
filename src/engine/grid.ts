@@ -17,7 +17,13 @@ export class Grid {
         for (let y = 0; y < this.height; y++) {
             const row: Cell[] = []
             for (let x = 0; x < this.width; x++) {
-                row.push({ hasMine: false, isRevealed: false, isFlagged: false, adjacentMines: 0})
+                row.push({
+                    hasMine: false,
+                    isRevealed: false,
+                    isFlagged: false,
+                    adjacentMines: 0,
+                    isTriggeredMine: false
+                })
             }
             grid.push(row)
         }
@@ -32,11 +38,22 @@ export class Grid {
     }
 
     //Set the target property of all cells in the grid to the desired value
-    setAll<K extends keyof Cell>(property: K, value: Cell[K]) {
+    setAllWith<K extends keyof Cell, C extends keyof Cell>(
+        newProperty: K,
+        newValue: Cell[K],
+        targetProperty?: C,
+        targetValue?: Cell[C]
+    ) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                this.getCell(x,y)[property] = value
+                const cell = this.getCell(x,y)
+                if (targetProperty === undefined || cell[targetProperty] === targetValue) {
+                    cell[newProperty] = newValue
+                }
             }
         }
+    }
+    setAll<K extends keyof Cell>(property: K, value: Cell[K]) {
+        this.setAllWith(property, value)
     }
 }

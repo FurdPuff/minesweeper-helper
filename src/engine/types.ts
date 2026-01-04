@@ -4,6 +4,7 @@ export type Cell = {
     isRevealed: boolean
     isFlagged: boolean
     adjacentMines: number
+    isTriggeredMine: boolean
 }
 
 //Coordinate type

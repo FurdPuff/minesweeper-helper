@@ -5,8 +5,6 @@ body {
 }
 
 #board {
-    width: 420px;
-    height: 420px;
     border: 10px solid black;
     background-color: white;
 
@@ -16,10 +14,10 @@ body {
 }
 
 #board div {
-    width: 60px;
-    height: 60px;
     border: 1px solid black;
     box-sizing: border-box;
+    cursor: default;
+    user-select: none;
 
     font-size: 30px;
     display: flex;
@@ -32,13 +30,8 @@ body {
     background: darkgray !important;
 }
 
-.isRevealedMine {
-    background: white !important;
-    color: black;
-}
-
-.isFlagged {
-    color: crimson;
+.isTriggeredMine {
+    background: red !important;
 }
 
 .x1 {
