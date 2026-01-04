@@ -6,10 +6,10 @@ import { Buttons } from './buttons.js'
 //loading game
 document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("startBtn")
-
-    //start game on button
     startBtn?.addEventListener("click", () => {
-        startGame({type: "Difficulty", difficulty: "Beginner"})
+        const difficultySelect = document.getElementById("difficulty") as HTMLSelectElement
+        const selectedDifficulty = difficultySelect.value as Difficulty
+        startGame({ type: "Difficulty", difficulty: selectedDifficulty })
     })
 })
 
