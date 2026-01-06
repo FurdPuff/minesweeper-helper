@@ -22,7 +22,8 @@ export class Grid {
                     isRevealed: false,
                     isFlagged: false,
                     adjacentMines: 0,
-                    isTriggeredMine: false
+                    isTriggeredMine: false,
+                    isFirstRevealed: false
                 })
             }
             grid.push(row)
@@ -41,13 +42,17 @@ export class Grid {
     setAllWith<K extends keyof Cell, C extends keyof Cell>(
         newProperty: K,
         newValue: Cell[K],
-        targetProperty?: C,
-        targetValue?: Cell[C]
+        targetProperty1?: C,
+        targetValue1?: Cell[C],
+        targetProperty2?: C,
+        targetValue2?: Cell[C]
     ) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.getCell(x,y)
-                if (targetProperty === undefined || cell[targetProperty] === targetValue) {
+                if ((targetProperty1 === undefined || cell[targetProperty1] === targetValue1) 
+                    && (targetProperty2 === undefined || cell[targetProperty2] === targetValue2)
+                ) {
                     cell[newProperty] = newValue
                 }
             }

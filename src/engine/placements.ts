@@ -62,7 +62,7 @@ export class ManualGame {
 export class GameDifficulty {
     game: Game
 
-    constructor(difficulty: Difficulty) {
+    constructor(difficulty: Difficulty, customWidth?: number, customHeight?: number, customMineCount?: number) {
         let width!: number
         let height!: number
         let mineCount!: number
