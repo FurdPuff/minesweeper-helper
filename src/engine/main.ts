@@ -58,13 +58,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem('customWidth', String(w))
                 localStorage.setItem('customHeight', String(h))
                 localStorage.setItem('customMines', String(m))
-                // remove form and start game
+                
                 container?.remove()
                 startGame({ type: 'Random', width: w, height: h, mineCount: m })
             })
 
             container.append(width, height, mineCount, startCustom)
-            // insert the form next to the start button
+            
             const startBtnEl = document.getElementById('startBtn')
             startBtnEl?.insertAdjacentElement('afterend', container)
         } else {

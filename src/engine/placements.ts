@@ -16,7 +16,7 @@ export class RandomGame {
     private randomPlaceMines() {
         // randomly place mines on the grid
         var minesLeft = this.mineCount
-        const totalTiles = this.game.grid.height * this.game.grid.width
+        const totalTiles = this.game.grid.gridArea()
         if (minesLeft >= totalTiles) this.game.grid.setAll("hasMine", true)
 
         while (minesLeft > 0) {
@@ -35,11 +35,13 @@ export class RandomGame {
 //Manually places tiles on a grid given a Game and a list of mine coordinates
 export class ManualGame {
     mineList: Coordinate[]
+    mineCount: number
     game: Game
 
     constructor(game: Game, mineList: Coordinate[]) {
         this.game = game
         this.mineList = mineList
+        this.mineCount = 0
         this.manualPlaceMines()
         calculateAdjacentMines(this.game)
     }
@@ -53,6 +55,7 @@ export class ManualGame {
             
             if (!selectedCell.hasMine && y < this.game.grid.height && x < this.game.grid.width && x >= 0 && y >= 0) {
                 selectedCell.hasMine = true
+                this.mineCount++
             }
         }
     }
@@ -61,11 +64,12 @@ export class ManualGame {
 //Randomly places tiles on a grid given a game difficulty
 export class GameDifficulty {
     game: Game
+    mineCount: number
 
     constructor(difficulty: Difficulty, customWidth?: number, customHeight?: number, customMineCount?: number) {
-        let width!: number
-        let height!: number
-        let mineCount!: number
+        let width: number
+        let height: number
+        let mineCount: number
 
         switch (difficulty) {
             case "Beginner":
@@ -89,6 +93,7 @@ export class GameDifficulty {
         }
 
         this.game = new Game(width, height)
+        this.mineCount = mineCount
         new RandomGame(this.game, mineCount)
     }
 }

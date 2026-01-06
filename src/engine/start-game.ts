@@ -10,20 +10,31 @@ export function startGame (options:
     {type: "Difficulty"; difficulty: Difficulty; width?: number; height?: number}) {
     
     let game: Game
+    let flagsLeft: number
+    let totalSafeTiles: number
+    let revealedTiles = 0
+
     switch (options.type) {
         case "Random":
             game = new Game(options.width, options.height)
-            new RandomGame(game, options.mineCount)
+            const rg = new RandomGame(game, options.mineCount)
+            flagsLeft = rg.mineCount
+            totalSafeTiles = game.grid.gridArea() - rg.mineCount
             break
         case "Manual":
             game = new Game(options.width, options.height)
-            new ManualGame(game, options.mineList)
+            const mg = new ManualGame(game, options.mineList)
+            flagsLeft = mg.mineList.length
+            totalSafeTiles = game.grid.gridArea() - mg.mineCount
             break
         case "Difficulty":
             const gd = new GameDifficulty(options.difficulty)
             game = gd.game
+            flagsLeft = gd.mineCount
+            totalSafeTiles = game.grid.gridArea() - gd.mineCount
             break
     }
+
     const cellSize = 50
     const boardWidth = game.grid.width * cellSize
     const boardHeight = game.grid.height * cellSize
@@ -33,9 +44,28 @@ export function startGame (options:
     board.style.height = `${boardHeight}px`;    
     board.innerHTML = ""
 
+    document.getElementById("flags-display")?.remove()
+    const flagsDisplay = document.createElement("h1")
+    flagsDisplay.id = "flags-display"
+    flagsDisplay.textContent = `Flags left: ${flagsLeft}`
+    document.body.appendChild(flagsDisplay)
+
+    document.getElementById("game-over")?.remove()
+    const gameOver = document.createElement("h1")
+    gameOver.id = "game-over"
+    gameOver.textContent = `Is the game over?: ${game.isGameOver}`
+    document.body.appendChild(gameOver)
+
+    document.getElementById("game-won")?.remove()
+    const gameWon = document.createElement("h1")
+    gameWon.id = "game-won"
+    gameWon.textContent = `${game.isGameOver}`
+    document.body.appendChild(gameWon)
+
     //Rendering the game
     function render() {
         board.innerHTML = ""
+        revealedTiles = 0
 
         for (let y = 0; y < game.grid.height; y++){
             for (let x = 0; x < game.grid.width; x++) {
@@ -45,23 +75,41 @@ export function startGame (options:
                 div.style.height = `${cellSize}px`;
                 const mines = cell.adjacentMines
 
+                if (cell.isRevealed) revealedTiles++
+
+                //Player interaction event listeners:
+                
+                //Reveal tile
                 div.addEventListener(Buttons.reveal.event, (e) => {
-                    game.revealCell(x,y)
+                    if (game.isGameOver) return
                     if (cell.hasMine) cell.isTriggeredMine = true
-                    if (cell)
+                    game.revealCell(x,y)
                     render()
                 })
+
+                //Toggle flag
                 div.addEventListener(Buttons.flag.event, (e) => {
                     e.preventDefault()
+                    if (game.isGameOver) return
+                    if (cell.isFlagged) flagsLeft++
+                    else if (!cell.isRevealed) flagsLeft--
                     game.toggleFlag(x,y)
                     render()
                 })
+
+                //Chord cell attempt
                 div.addEventListener(Buttons.chord.event, (e: Event) => {
+                    if (game.isGameOver) return
                     if ((e as MouseEvent).button === Buttons.chord.button) {
                         game.chordCell(x, y)
                         render()
                     }
                 })
+
+                if (totalSafeTiles === revealedTiles) {
+                    game.isGameWon = true
+                    game.isGameOver = true
+                } 
 
                 if (cell.isRevealed) {
                     div.classList.add("isRevealed")
@@ -72,7 +120,7 @@ export function startGame (options:
                         div.innerHTML = '<img src="/public/images/mine.png" alt="Mine" width="35" height="35"/>'
                         div.ondragstart = function() { return false; };
                         game.isGameOver = true
-                        game.grid.setAllWith("isRevealed", true, "hasMine", true, "isFlagged", false)
+                        game.grid.setAllWhere("isRevealed", true, {"hasMine": true, "isFlagged": false})
                     }
                     else {
                         div.textContent = mines === 0 ? "" : String(mines)
@@ -86,6 +134,12 @@ export function startGame (options:
 
                 board.appendChild(div)
             }
+        }
+        
+        flagsDisplay.textContent = `Flags left: ${flagsLeft}`
+        gameOver.textContent = `Is the game over?: ${game.isGameOver ? "Yes": "No"}`
+        if (game.isGameOver) {
+            gameWon.textContent = `${game.isGameWon ? "You win!": "You lost :("}`
         }
     }
 

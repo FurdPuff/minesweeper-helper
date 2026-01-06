@@ -38,27 +38,34 @@ export class Grid {
         return this.cells[y]![x]!
     }
 
-    //Set the target property of all cells in the grid to the desired value
-    setAllWith<K extends keyof Cell, C extends keyof Cell>(
+    //Set the target property of all cells in the grid where the conditions are met to the desired value
+    setAllWhere<K extends keyof Cell>(
         newProperty: K,
         newValue: Cell[K],
-        targetProperty1?: C,
-        targetValue1?: Cell[C],
-        targetProperty2?: C,
-        targetValue2?: Cell[C]
+        conditions: Partial<Cell> = {},
     ) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.getCell(x,y)
-                if ((targetProperty1 === undefined || cell[targetProperty1] === targetValue1) 
-                    && (targetProperty2 === undefined || cell[targetProperty2] === targetValue2)
-                ) {
+
+                const matches = Object.entries(conditions).every(
+                    ([targetProperty, targetValue]) =>
+                    (cell as any)[targetProperty] === targetValue
+                )
+
+                if (matches) {
                     cell[newProperty] = newValue
                 }
             }
         }
     }
+
+    //Set the target property of all cells in the grid to the desired value
     setAll<K extends keyof Cell>(property: K, value: Cell[K]) {
-        this.setAllWith(property, value)
+        this.setAllWhere(property, value)
+    }
+
+    gridArea(): number {
+        return this.width * this.height
     }
 }
