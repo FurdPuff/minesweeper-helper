@@ -20,8 +20,12 @@ export class RandomGame {
         if (minesLeft >= totalTiles) this.game.grid.setAll("hasMine", true)
 
         while (minesLeft > 0) {
-            const random_y = Math.floor(Math.random() * this.game.grid.height)
-            const random_x = Math.floor(Math.random() * this.game.grid.width)
+            const allCells = this.game.grid.cells.flat()
+            const candidates = allCells.filter(c => !c.hasMine)
+            const selectedCandidate = candidates[Math.floor(Math.random() * candidates.length)]!
+
+            const random_x = selectedCandidate.x
+            const random_y = selectedCandidate.y
             const randomCell = this.game.grid.getCell(random_x,random_y)
 
             if (!randomCell.hasMine) {
@@ -119,4 +123,21 @@ export function calculateAdjacentMines(game: Game) {
             }
         }
     }
+}
+
+export function relocateMine(game: Game, x: number, y: number) {
+    const cell = game.grid.getCell(x,y)
+    if (!cell.hasMine) return
+    const allCells = game.grid.cells.flat()
+    const candidates = allCells.filter(c =>
+        !c.hasMine && !c.isRevealed && !(c.x === x && c.y === y)
+    )
+    const selectedCandidate = candidates[Math.floor((Math.random()) * candidates.length)]!
+
+    const random_x = selectedCandidate.x
+    const random_y = selectedCandidate.y
+    const randomCell = game.grid.getCell(random_x,random_y)
+
+    cell.hasMine = false
+    randomCell.hasMine = true
 }

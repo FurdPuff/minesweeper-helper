@@ -1,11 +1,12 @@
 //Cell data
 export type Cell = {
+    x: number
+    y: number
     hasMine: boolean
     isRevealed: boolean
     isFlagged: boolean
     adjacentMines: number
     isTriggeredMine: boolean
-    isFirstRevealed: boolean
 }
 
 //Coordinate type

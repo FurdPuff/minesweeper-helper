@@ -1,5 +1,5 @@
 import { Game } from './game.js'
-import { GameDifficulty, RandomGame, ManualGame } from './placements.js'
+import { GameDifficulty, RandomGame, ManualGame, calculateAdjacentMines, relocateMine } from './placements.js'
 import { Coordinate, Difficulty } from './types.js'
 import { Buttons } from './buttons.js'
 
@@ -10,7 +10,7 @@ export function startGame (options:
     {type: "Difficulty"; difficulty: Difficulty; width?: number; height?: number}) {
     
     let game: Game
-    let flagsLeft: number
+    let mineCount: number
     let totalSafeTiles: number
     let revealedTiles = 0
 
@@ -18,22 +18,23 @@ export function startGame (options:
         case "Random":
             game = new Game(options.width, options.height)
             const rg = new RandomGame(game, options.mineCount)
-            flagsLeft = rg.mineCount
-            totalSafeTiles = game.grid.gridArea() - rg.mineCount
+            mineCount = rg.mineCount
+            totalSafeTiles = game.grid.gridArea() - mineCount
             break
         case "Manual":
             game = new Game(options.width, options.height)
             const mg = new ManualGame(game, options.mineList)
-            flagsLeft = mg.mineList.length
-            totalSafeTiles = game.grid.gridArea() - mg.mineCount
+            mineCount = mg.mineList.length
+            totalSafeTiles = game.grid.gridArea() - mineCount
             break
         case "Difficulty":
             const gd = new GameDifficulty(options.difficulty)
             game = gd.game
-            flagsLeft = gd.mineCount
-            totalSafeTiles = game.grid.gridArea() - gd.mineCount
+            mineCount = gd.mineCount
+            totalSafeTiles = game.grid.gridArea() - mineCount
             break
     }
+    let flagsLeft = mineCount
 
     const cellSize = 50
     const boardWidth = game.grid.width * cellSize
@@ -67,6 +68,11 @@ export function startGame (options:
         board.innerHTML = ""
         revealedTiles = 0
 
+        // If the game is over due to a loss, reveal all mines before building the DOM
+        if (game.isGameOver && !game.isGameWon) {
+            game.grid.setAllWhere("isRevealed", true, {"hasMine": true})
+        }
+
         for (let y = 0; y < game.grid.height; y++){
             for (let x = 0; x < game.grid.width; x++) {
                 const cell = game.grid.getCell(x,y)
@@ -82,7 +88,17 @@ export function startGame (options:
                 //Reveal tile
                 div.addEventListener(Buttons.reveal.event, (e) => {
                     if (game.isGameOver) return
+
+                    if (game.isFirstMove) {
+                        if (totalSafeTiles > 0 && cell.hasMine) {
+                            relocateMine(game, x, y)
+                            calculateAdjacentMines(game)
+                        }
+
+                        game.isFirstMove = false
+                    }
                     if (cell.hasMine) cell.isTriggeredMine = true
+
                     game.revealCell(x,y)
                     render()
                 })
@@ -91,6 +107,7 @@ export function startGame (options:
                 div.addEventListener(Buttons.flag.event, (e) => {
                     e.preventDefault()
                     if (game.isGameOver) return
+                    
                     if (cell.isFlagged) flagsLeft++
                     else if (!cell.isRevealed) flagsLeft--
                     game.toggleFlag(x,y)
@@ -100,13 +117,14 @@ export function startGame (options:
                 //Chord cell attempt
                 div.addEventListener(Buttons.chord.event, (e: Event) => {
                     if (game.isGameOver) return
+                    
                     if ((e as MouseEvent).button === Buttons.chord.button) {
                         game.chordCell(x, y)
                         render()
                     }
                 })
 
-                if (totalSafeTiles === revealedTiles) {
+                if (totalSafeTiles === revealedTiles && !game.isGameOver) {
                     game.isGameWon = true
                     game.isGameOver = true
                 } 
@@ -118,9 +136,8 @@ export function startGame (options:
                             div.classList.add("isTriggeredMine")
                         }
                         div.innerHTML = '<img src="/public/images/mine.png" alt="Mine" width="35" height="35"/>'
-                        div.ondragstart = function() { return false; };
-                        game.isGameOver = true
-                        game.grid.setAllWhere("isRevealed", true, {"hasMine": true, "isFlagged": false})
+                            div.ondragstart = function() { return false; };
+                            game.isGameOver = true
                     }
                     else {
                         div.textContent = mines === 0 ? "" : String(mines)

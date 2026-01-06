@@ -5,6 +5,7 @@ export class Game {
     grid: Grid
     isGameOver: boolean = false
     isGameWon: boolean = false
+    isFirstMove = true
 
     constructor(width: number, height: number) {
         this.grid = new Grid(width,height)

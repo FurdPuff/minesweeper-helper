@@ -18,12 +18,13 @@ export class Grid {
             const row: Cell[] = []
             for (let x = 0; x < this.width; x++) {
                 row.push({
+                    x: x,
+                    y: y,
                     hasMine: false,
                     isRevealed: false,
                     isFlagged: false,
                     adjacentMines: 0,
-                    isTriggeredMine: false,
-                    isFirstRevealed: false
+                    isTriggeredMine: false
                 })
             }
             grid.push(row)
