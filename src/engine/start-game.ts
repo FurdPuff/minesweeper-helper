@@ -10,33 +10,28 @@ export function startGame (options:
     {type: "Difficulty"; difficulty: Difficulty; width?: number; height?: number}) {
     
     let game: Game
-    let mineCount: number
-    let totalSafeTiles: number
-    let revealedTiles = 0
+    let revealedTiles: number
 
     switch (options.type) {
         case "Random":
             game = new Game(options.width, options.height)
             const rg = new RandomGame(game, options.mineCount)
-            mineCount = rg.mineCount
-            totalSafeTiles = game.grid.gridArea() - mineCount
             break
         case "Manual":
             game = new Game(options.width, options.height)
             const mg = new ManualGame(game, options.mineList)
-            mineCount = mg.mineList.length
-            totalSafeTiles = game.grid.gridArea() - mineCount
             break
         case "Difficulty":
             const gd = new GameDifficulty(options.difficulty)
             game = gd.game
-            mineCount = gd.mineCount
-            totalSafeTiles = game.grid.gridArea() - mineCount
             break
     }
+    const mineCount = game.mineCount
     let flagsLeft = mineCount
+    const totalSafeTiles = game.totalTiles - mineCount
+    let safeCellsRemaining = game.safeCellsRemaining
 
-    const cellSize = 50
+    const cellSize = 50 //Base size of each cell
     const boardWidth = game.grid.width * cellSize
     const boardHeight = game.grid.height * cellSize
 
@@ -60,7 +55,6 @@ export function startGame (options:
     document.getElementById("game-won")?.remove()
     const gameWon = document.createElement("h1")
     gameWon.id = "game-won"
-    gameWon.textContent = `${game.isGameOver}`
     document.body.appendChild(gameWon)
 
     //Rendering the game
@@ -68,9 +62,10 @@ export function startGame (options:
         board.innerHTML = ""
         revealedTiles = 0
 
-        // If the game is over due to a loss, reveal all mines before building the DOM
+        // If the game is over due to a loss, reveal all mines before building the DOM and reveal all misflags
         if (game.isGameOver && !game.isGameWon) {
-            game.grid.setAllWhere("isRevealed", true, {"hasMine": true})
+            game.grid.setAllWhere("isRevealed", true, {"hasMine": true, "isFlagged": false})
+            game.grid.setAllWhere("isIncorrectlyFlagged", true, {"isFlagged": true, "hasMine": false})
         }
 
         for (let y = 0; y < game.grid.height; y++){
@@ -80,8 +75,6 @@ export function startGame (options:
                 div.style.width = `${cellSize}px`;
                 div.style.height = `${cellSize}px`;
                 const mines = cell.adjacentMines
-
-                if (cell.isRevealed) revealedTiles++
 
                 //Player interaction event listeners:
                 
@@ -124,29 +117,27 @@ export function startGame (options:
                     }
                 })
 
-                if (totalSafeTiles === revealedTiles && !game.isGameOver) {
-                    game.isGameWon = true
-                    game.isGameOver = true
-                } 
-
                 if (cell.isRevealed) {
                     div.classList.add("isRevealed")
                     if (cell.hasMine) { 
                         if (cell.hasMine && cell.isTriggeredMine) {
                             div.classList.add("isTriggeredMine")
                         }
-                        div.innerHTML = '<img src="/public/images/mine.png" alt="Mine" width="35" height="35"/>'
-                            div.ondragstart = function() { return false; };
-                            game.isGameOver = true
+                        div.innerHTML = '<img src="/public/images/mine.png" alt="Mine" width="35" height="35"/>' //mine
+                        div.ondragstart = function() { return false; };
                     }
+                    //Apply misflag symbol onto incorrectly flagged tiles once the game is over
                     else {
                         div.textContent = mines === 0 ? "" : String(mines)
                         if (mines !== 0) div.classList.add("x" + mines)
                     }
                 } else if (cell.isFlagged) {
-                    div.innerHTML = '<img src="/public/images/flag.svg" alt="Flag" width="40" height="40"/>'
+                    div.innerHTML = '<img src="/public/images/flag.svg" alt="Flag" width="40" height="40"/>' //flag
                     div.classList.add("isFlagged")
                     div.ondragstart = function() { return false; };
+                    if (cell.isIncorrectlyFlagged) {
+                        div.innerHTML = '<img src="/public/images/misflag.svg" alt="misflag" width="40" height="40"/>' //red-x
+                    }
                 }
 
                 board.appendChild(div)

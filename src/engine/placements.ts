@@ -11,6 +11,8 @@ export class RandomGame {
         this.mineCount = mineCount
         this.randomPlaceMines()
         calculateAdjacentMines(this.game)
+        this.game.mineCount = mineCount
+        this.game.safeCellsRemaining = this.game.totalTiles - mineCount
     }
 
     private randomPlaceMines() {
@@ -48,6 +50,8 @@ export class ManualGame {
         this.mineCount = 0
         this.manualPlaceMines()
         calculateAdjacentMines(this.game)
+        this.game.mineCount = this.mineCount
+        this.game.safeCellsRemaining = this.game.totalTiles - this.mineCount
     }
 
     private manualPlaceMines() {
@@ -98,6 +102,8 @@ export class GameDifficulty {
 
         this.game = new Game(width, height)
         this.mineCount = mineCount
+        this.game.mineCount = mineCount
+        this.game.safeCellsRemaining = this.game.totalTiles - mineCount
         new RandomGame(this.game, mineCount)
     }
 }

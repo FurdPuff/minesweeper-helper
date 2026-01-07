@@ -3,12 +3,17 @@ import { Grid } from './grid.js'
 //Initialize grid and game logic
 export class Game {
     grid: Grid
-    isGameOver: boolean = false
-    isGameWon: boolean = false
+    isGameWon = false
+    isGameOver = false
     isFirstMove = true
+    mineCount = 0
+    revealedTiles = 0
+    totalTiles: number
+    safeCellsRemaining = 0
 
     constructor(width: number, height: number) {
         this.grid = new Grid(width,height)
+        this.totalTiles = this.grid.gridArea()
     }
 
     //Reveal a cell
@@ -19,6 +24,12 @@ export class Game {
         if (cell.hasMine) {
             this.isGameOver = true
             return
+        } else this.safeCellsRemaining--
+        this.revealedTiles++
+        
+        if (this.safeCellsRemaining === 0 && !this.isGameOver) {
+            this.isGameOver = true
+            this.isGameWon = true
         }
         if (cell.adjacentMines !== 0) return
         

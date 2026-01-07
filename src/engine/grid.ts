@@ -24,7 +24,8 @@ export class Grid {
                     isRevealed: false,
                     isFlagged: false,
                     adjacentMines: 0,
-                    isTriggeredMine: false
+                    isTriggeredMine: false,
+                    isIncorrectlyFlagged: false
                 })
             }
             grid.push(row)
@@ -68,5 +69,19 @@ export class Grid {
 
     gridArea(): number {
         return this.width * this.height
+    }
+
+    countAll<K extends keyof Cell>(property: K, value: Cell[K]): number {
+        let count = 0
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.getCell(x,y)
+
+                if (cell[property] === value) {
+                    count++
+                }
+            }
+        }
+        return count
     }
 }

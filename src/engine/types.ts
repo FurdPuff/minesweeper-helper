@@ -7,6 +7,7 @@ export type Cell = {
     isFlagged: boolean
     adjacentMines: number
     isTriggeredMine: boolean
+    isIncorrectlyFlagged: boolean
 }
 
 //Coordinate type
