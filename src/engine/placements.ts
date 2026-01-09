@@ -21,7 +21,7 @@ export class RandomGame {
         const totalTiles = this.game.grid.gridArea()
         if (minesLeft >= totalTiles) this.game.grid.setAll("hasMine", true)
 
-        while (minesLeft > 0) {
+        for (minesLeft = this.mineCount; minesLeft > 0; minesLeft--) {
             const allCells = this.game.grid.cells.flat()
             const candidates = allCells.filter(c => !c.hasMine)
             const selectedCandidate = candidates[Math.floor(Math.random() * candidates.length)]!
@@ -29,11 +29,8 @@ export class RandomGame {
             const random_x = selectedCandidate.x
             const random_y = selectedCandidate.y
             const randomCell = this.game.grid.getCell(random_x,random_y)
-
-            if (!randomCell.hasMine) {
-                randomCell.hasMine = true
-                minesLeft--
-            }
+            randomCell.hasMine = true
+            this.game.revealedList.push([random_x,random_y])
         }
     }
 }
@@ -63,6 +60,7 @@ export class ManualGame {
             
             if (!selectedCell.hasMine && y < this.game.grid.height && x < this.game.grid.width && x >= 0 && y >= 0) {
                 selectedCell.hasMine = true
+                this.game.revealedList.push([x,y])
                 this.mineCount++
             }
         }

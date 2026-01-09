@@ -1,4 +1,5 @@
 import { Grid } from './grid.js'
+import { Coordinate } from './types.js'
 
 //Initialize grid and game logic
 export class Game {
@@ -10,6 +11,8 @@ export class Game {
     revealedTiles = 0
     totalTiles: number
     safeCellsRemaining = 0
+    mineList: Coordinate[] = []
+    revealedList: Coordinate[] = []
 
     constructor(width: number, height: number) {
         this.grid = new Grid(width,height)
@@ -26,6 +29,7 @@ export class Game {
             return
         } else this.safeCellsRemaining--
         this.revealedTiles++
+        this.revealedList.push([x,y])
         
         if (this.safeCellsRemaining === 0 && !this.isGameOver) {
             this.isGameOver = true

@@ -5,8 +5,8 @@ export type Cell = {
     hasMine: boolean
     isRevealed: boolean
     isFlagged: boolean
-    adjacentMines: number
-    isTriggeredMine: boolean
+    adjacentMines: number //0-8
+    isTriggeredMine: boolean //is a mine and is clicked on
     isIncorrectlyFlagged: boolean
 }
 
