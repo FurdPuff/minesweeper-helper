@@ -2,15 +2,16 @@ import { Game } from './game.js'
 import { GameDifficulty, RandomGame, ManualGame, calculateAdjacentMines, relocateMine } from './placements.js'
 import { Coordinate, Difficulty } from './types.js'
 import { Buttons } from './buttons.js'
+import { sendBoardState, Move } from './main.js'
 
 //Start the game
 export function startGame (options:
     {type: "Random"; mineCount: number; width: number; height: number} |
     {type: "Manual"; mineList: Coordinate[]; width: number; height: number} |
-    {type: "Difficulty"; difficulty: Difficulty; width?: number; height?: number}) {
+    {type: "Difficulty"; difficulty: Difficulty; width?: number; height?: number}, 
+    solver: boolean, onSolverMove?: (handler: (move: Move) => void) => void) {
     
     let game: Game
-    let revealedTiles: number
 
     switch (options.type) {
         case "Random":
@@ -57,10 +58,44 @@ export function startGame (options:
     gameWon.id = "game-won"
     document.body.appendChild(gameWon)
 
+    let solverBusy = false
+
+    // Updates game and notifies solver if solver is enabled
+    function applyAction(updateFn: () => void) {
+        updateFn()
+        if (solver && !solverBusy) {
+            solverBusy = true
+            sendBoardState(game)
+            setTimeout(() => solverBusy = false, 50)
+        }
+        render()
+    }
+
+    function applySolverMove(move: { action: string; x: number; y: number }) {
+        if (game.isGameOver) return
+
+        if (move.action === "reveal") {
+            applyAction(() => game.revealCell(move.x, move.y))
+        } 
+        else if (move.action === "flag") {
+            if (!game.grid.getCell(move.x, move.y).isFlagged) {
+                game.toggleFlag(move.x, move.y)
+            }
+        } 
+        else if (move.action === "chord") {
+            applyAction(() => game.chordCell(move.x, move.y))
+        }
+
+        render()
+
+        sendBoardState(game)
+    }
+
+    onSolverMove?.(applySolverMove)
+
     //Rendering the game
     function render() {
         board.innerHTML = ""
-        revealedTiles = 0
 
         // If the game is over due to a loss, reveal all mines before building the DOM and reveal all misflags
         if (game.isGameOver && !game.isGameWon) {
@@ -91,9 +126,7 @@ export function startGame (options:
                         game.isFirstMove = false
                     }
                     if (cell.hasMine) cell.isTriggeredMine = true
-
-                    game.revealCell(x,y)
-                    render()
+                    applyAction(() => game.revealCell(x, y))
                 })
 
                 //Toggle flag
@@ -103,8 +136,7 @@ export function startGame (options:
                     
                     if (cell.isFlagged) flagsLeft++
                     else if (!cell.isRevealed) flagsLeft--
-                    game.toggleFlag(x,y)
-                    render()
+                    applyAction(() => game.toggleFlag(x, y))
                 })
 
                 //Chord cell attempt
@@ -112,9 +144,9 @@ export function startGame (options:
                     if (game.isGameOver) return
                     
                     if ((e as MouseEvent).button === Buttons.chord.button) {
-                        game.chordCell(x, y)
-                        render()
+                        applyAction(() => game.chordCell(x, y))
                     }
+
                 })
 
                 if (cell.isRevealed) {

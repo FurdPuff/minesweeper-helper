@@ -1,5 +1,62 @@
 import { Difficulty } from './types.js'
 import { startGame } from './start-game.js'
+import { Game } from './game.js'
+
+const socket = new WebSocket("ws://localhost:8000/ws")
+
+socket.addEventListener('open', () => {
+    console.log('Connected to solver server')
+})
+
+export type Move = {
+    action: "reveal" | "flag" | "chord",
+    x: number,
+    y: number
+}
+
+let solverHandler: ((move: Move) => void) | null = null
+
+socket.addEventListener('message', (event) => {
+    const text = event.data
+
+    const data: Move = JSON.parse(text)
+
+    if (solverHandler) {
+        solverHandler(data)
+    }
+    console.log('Received from server:', data)
+})
+
+socket.addEventListener('error', (event) => {
+    console.error('WebSocket error:', event)
+})
+
+socket.addEventListener('close', () => {
+    console.log('WebSocket closed')
+})
+
+export function sendBoardState(game: Game) {
+    if (socket.readyState !== WebSocket.OPEN) {
+        console.warn('WebSocket not open, cannot send board state')
+        return
+    }
+    socket.send(JSON.stringify({
+        type: 'board_state',
+        width: game.grid.width,
+        height: game.grid.height,
+        isFirstMove: game.isFirstMove,
+        mineCount: game.mineCount,
+        cells: game.grid.cells.map(row =>
+            row.map(cell => ({
+                x: cell.x,
+                y: cell.y,
+                revealed: cell.isRevealed,
+                flagged: cell.isFlagged,
+                number: cell.adjacentMines
+            }))
+        )
+    }))
+}
 
 //loading game
 document.addEventListener("DOMContentLoaded", () => {
@@ -60,7 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem('customMines', String(m))
                 
                 container?.remove()
-                startGame({ type: 'Random', width: w, height: h, mineCount: m })
+                startGame({ type: 'Random', width: w, height: h, mineCount: m },
+                    true, (handler) => solverHandler = handler)
             })
 
             container.append(width, height, mineCount, startCustom)
@@ -68,7 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const startBtnEl = document.getElementById('startBtn')
             startBtnEl?.insertAdjacentElement('afterend', container)
         } else {
-            startGame({ type: "Difficulty", difficulty: selectedDifficulty })
+            startGame({ type: "Difficulty", difficulty: selectedDifficulty },
+                true, (handler) => solverHandler = handler)
         }
     })
 })
