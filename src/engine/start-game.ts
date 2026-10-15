@@ -155,7 +155,7 @@ export function startGame (options:
                         if (cell.hasMine && cell.isTriggeredMine) {
                             div.classList.add("isTriggeredMine")
                         }
-                        div.innerHTML = '<img src="/public/images/mine.png" alt="Mine" width="35" height="35"/>' //mine
+                        div.innerHTML = '<img src="/images/mine.png" alt="Mine" width="35" height="35"/>' //mine
                         div.ondragstart = function() { return false; };
                     }
                     //Apply misflag symbol onto incorrectly flagged tiles once the game is over
@@ -164,11 +164,11 @@ export function startGame (options:
                         if (mines !== 0) div.classList.add("x" + mines)
                     }
                 } else if (cell.isFlagged) {
-                    div.innerHTML = '<img src="/public/images/flag.svg" alt="Flag" width="40" height="40"/>' //flag
+                    div.innerHTML = '<img src="/images/flag.svg" alt="Flag" width="40" height="40"/>' //flag
                     div.classList.add("isFlagged")
                     div.ondragstart = function() { return false; };
                     if (cell.isIncorrectlyFlagged) {
-                        div.innerHTML = '<img src="/public/images/misflag.svg" alt="misflag" width="40" height="40"/>' //red-x
+                        div.innerHTML = '<img src="/images/misflag.svg" alt="misflag" width="40" height="40"/>' //red-x
                     }
                 }
 

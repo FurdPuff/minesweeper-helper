@@ -35,14 +35,14 @@ async def websocket_endpoint(ws: WebSocket):
             # Empty board case (assume safe first tile)
             if board.is_first_move: 
                 cell = board.get_cell(0, 0)
-                # move = MoveLocation("reveal", cell)
-                # board.is_first_move = False
-                # cell.revealed = True
-                # await ws.send_json({
-                #     "action": move.action,
-                #     "x": move.cell.x,
-                #     "y": move.cell.y
-                # })
+                move = MoveLocation("reveal", cell)
+                board.is_first_move = False
+                cell.revealed = True
+                await ws.send_json({
+                    "action": move.action,
+                    "x": move.cell.x,
+                    "y": move.cell.y
+                })
             else:
                 # Basic solve
                 move_list = apply_basic_solve(board)
